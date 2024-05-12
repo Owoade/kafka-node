@@ -14,6 +14,18 @@ class PaymentRepository {
 
     }
 
+    async get_existing_profile( email: string ){
+
+        const profile = await PaymentProfile.findOne({
+            where: {
+                email
+            },
+            attributes: ["id"]
+        })
+
+        return profile?.toJSON();
+    }
+
     async create_payment( payload: PaymentInterface, transaction: Transaction ){
 
         const payment = await Payment.create( payload, { transaction } );
@@ -45,6 +57,12 @@ class PaymentRepository {
     async update_balance( amount: number, profile_id: number, transaction: Transaction ){
 
         await PaymentProfile.increment('balance', { by: amount, transaction, where: { id: profile_id } });
+
+    }
+
+    async uodate_payment_webhook_call_status( payment_id: number, status: PaymentInterface['webhook_call_status'] ){
+
+        await Payment.update({ webhook_call_status: status }, { where: { id: payment_id  }});
 
     }
 
